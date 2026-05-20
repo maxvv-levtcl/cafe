@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Analisis de Demanda Cafeteria — version Streamlit
 Convertido desde notebook Colab original.
@@ -298,10 +299,16 @@ for prod in products:
     todos_efectos.append(extraer_efectos(modelo, prod))
 
     with st.expander(f"📊 {prod} — N celdas: {len(data)} | R²={modelo.rsquared:.3f}"):
-        coef_df = pd.read_html(
-            modelo.summary().tables[1].as_html(), header=0, index_col=0
-        )[0]
-        st.dataframe(coef_df, use_container_width=True)
+        # Extraer tabla de coeficientes de manera nativa
+        summary_df = pd.DataFrame({
+            'coef': modelo.params,
+            'std err': modelo.bse,
+            't': modelo.tvalues,
+            'P>|t|': modelo.pvalues,
+            '[0.025': modelo.conf_int()[0],
+            '0.975]': modelo.conf_int()[1]
+        }).round(4)
+        st.dataframe(summary_df, use_container_width=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════
